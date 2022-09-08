@@ -21,6 +21,27 @@ time_cmd() {
 DATA=""
 MIRRORS=$(wget -qO- "http://rsync.alpinelinux.org/alpine/MIRRORS.txt")
 DST=/etc/apk/mirrors.txt
+timelimit=0
+
+while getopts "t:" opt; do
+
+    case "$opt" in
+        t) timelimit="$OPTARG"
+
+            case "$timelimit" in
+                *[!0-9]*)
+                    printf "%s is not a number\n" "$timelimit"
+                    exit 2;;
+            esac
+            ;;
+
+        *) printf "Usage: %s: [-t timelimit]\n" "$0"
+            exit 2;;
+    esac
+
+done
+
+shift $((OPTIND-1))
 
 #find best
 for URL in $MIRRORS; do
@@ -29,11 +50,16 @@ for URL in $MIRRORS; do
     if [ -n "$TIME" ]; then	
         echo "$(get_hostname_url "$URL") was $TIME"
         DATA="$DATA$TIME $URL\n"
+
+        if [ "$timelimit" -gt 0 ] && [ "$TIME" -le "$timelimit" ]; then
+            break
+        fi
+
     fi
 
 done
 
-if printf '%b' "$DATA" | sort -n | tail -n +2 > $DST; then
+if printf '%b' "$DATA" | sort -n > $DST; then
     echo file $DST created
 fi
 
