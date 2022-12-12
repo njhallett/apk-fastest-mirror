@@ -19,7 +19,7 @@ time_cmd() {
 }
 
 DATA=""
-MIRRORS=$(wget -qO- "https://dl-cdn.alpinelinux.org/alpine/MIRRORS.txt")
+MIRRORS=$(wget -qO- "http://dl-cdn.alpinelinux.org/alpine/MIRRORS.txt")
 DST=/etc/apk/mirrors.txt
 timelimit=0
 
